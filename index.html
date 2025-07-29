@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pilot Passport</title>
+  <link href="/static/cropper.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Special+Elite&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Cinzel:700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="static/record_icon.ico">
+  <script src="/static/cropper.min.js"></script>
+  <style>
+body {
+  background: url('/static/background.jpg') repeat center center fixed;
+  background-size: cover;
+  font-family: 'Georgia', serif;
+}
+.award-icon {
+  height: 100px;
+  width: 100px;
+  object-fit: contain;
+  margin-right: 5px;
+  vertical-align: middle;
+  border-radius: 5px;
+  background: transparent;
+}
+.rank-icon {
+  height: 75px;
+  width: 100px;
+  object-fit: contain;
+  margin-right: 5px;
+  vertical-align: middle;
+  border-radius: 5px;
+  background: transparent;
+}
+#passport-container {
+  background: url('/static/old_paper_texture.jpg') repeat center center, #f8f2e0;
+  background-size: cover;
+  width: 85vw;
+  max-width: 1500 px;
+  min-width: 300 px;
+  height: auto;
+  margin: 3vw auto;
+  box-shadow: 0 0 42px #4a342188;
+  border-radius: 11px; /* Optional: slightly less round */
+  display: flex;
+  overflow: hidden;
+ border: 2px solid rgba(110, 94, 75, 0.33); /* faded brown */
+  min-height: 540px;
+  position: relative;
+}
+.typewriter {
+  font-family: 'Special Elite', 'Courier New', Courier, monospace;
+  font-size: 1.08em;
+  letter-spacing: 0.07em;
+  color: #2c2212;
+}
+
+.left, .right {
+  padding: 36px 26px 36px 32px;
+}
+
+#photo-frame {
+  width: 180px;
+  height: 220px;
+  border: 0px solid #FFFFFF;
+  margin-bottom: 18px;
+  margin-left: 5px;
+  background: #eae6d2;
+  position: relative;
+  box-shadow: 0 4px 12px #a6906c44;
+}
+#photo-edge-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 180px;
+  height: 220px;
+  pointer-events: none;
+  z-index: 2;  /* Between the photo (default z=0) and rivets (z=5) */
+  background-color: transparent;
+  mix-blend-mode: multiply; /* Or try darken */
+}
+
+#photo-frame::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -10px;
+  width: calc(100% + 20px);
+  height: calc(93% + 20px);
+  background: url('/static/rivets_overlay.png') no-repeat center center;
+  background-size: contain;
+  pointer-events: none;
+  z-index: 5;
+}
+#photo-frame img {
+  width: 180px;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+#stamp-overlay {
+  position: absolute;
+  left: 85px; top: 110px;
+  width: 110px; height: 110px;
+  opacity: 0.33;
+  pointer-events: none;
+  transform: rotate(-17deg);
+}
+#stamp-overlay1 {
+  position: absolute;
+  left: 85px; top: 600px;
+  width: 220px; height: 220px;
+  opacity: 0.33;
+  pointer-events: none;
+  transform: rotate(25deg);
+}
+#pilot-details {
+  margin-top: 10px;
+  margin-left: 2px;
+  font-size: 18px;
+  color: #251e12;
+  letter-spacing: 1.5px;
+}
+#pilot-details .detail-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+#pilot-details .label {
+  font-family: 'Cinzel', 'Georgia', serif;
+  min-width: 120px;       /* Slightly more width for label */
+  font-weight: bold;
+  letter-spacing: 0.4px;
+  color: #473914;
+  display: inline-block;
+  text-transform: uppercase;
+  font-size: 1.08em;
+  margin-right: 16px;     /* Add horizontal space between static and dynamic text */
+}
+#pilot-details .value {
+  flex: 1;
+  margin-left: 8px;
+}
+#pilot-details span {
+  display: flex;               /* Makes label/value appear in a row */
+  align-items: baseline;
+  margin-top: 12px;            /* Increase vertical space between lines */
+  font-size: 1.08em;
+  gap: 30px;
+}
+#pilot-details .typewriter {
+  font-family: 'Special Elite', 'Courier New', Courier, monospace;
+  font-size: 1.08em;
+  letter-spacing: 0.07em;
+  color: #2c2212;
+  display: inline-block;
+  vertical-align: middle;
+}
+#pilot-photo {
+  filter: grayscale(100%);
+}
+.left h2 {
+  font-size: 1.6em;
+  letter-spacing: 2.5px;
+  margin-bottom: 6px;
+  font-family: 'Georgia', serif;
+  color: #4e432b;
+}
+.styled-select, .btn, button {
+  font-family: inherit;
+  font-size: 15px;
+  background: #f2e8d5;
+  color: #4e432b;
+  border: 1.5px solid #a9906c;
+  border-radius: 6px;
+  padding: 7px 15px;
+  margin: 2px 0;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.styled-select:focus {
+  outline: 2px solid #917c5a;
+  background: #f6efdf;
+}
+.styled-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: #f2e8d5 url('data:image/svg+xml;utf8,<svg fill="gray" height="16" width="16" viewBox="0 0 20 20"><path d="M7.293 8.293a1 1 0 011.414 0L10 9.586l1.293-1.293a1 1 0 011.414 1.414l-2 2a1 1 0 01-1.414 0l-2-2a1 1 0 010-1.414z"/></svg>') no-repeat right 12px center/18px 18px;
+  padding-right: 36px;
+}
+.right {
+  flex: 1;
+  padding: 36px 40px 36px 42px;
+}
+#record-title {
+  text-align: center;
+  font-family: 'Cinzel', 'Georgia', serif;
+  font-size: 2.1em;
+  letter-spacing: 2px;
+  color: #3e3112;
+  margin-bottom: 22px;
+}
+#record-table {
+  display: flex;
+  gap: 32px;
+}
+#promotions, #awards {
+  margin-top: 10px;
+  flex: 1;
+}
+.record-section-title {
+  font-family: 'Cinzel', 'Georgia', serif;
+  margin-top: 0;
+  font-weight: bold;
+  font-size: 1.19em;
+  letter-spacing: 1.2px;
+  color: #503d18;
+  border-bottom: 1.2px solid #ccb890;
+  margin-bottom: 10px;
+}
+.record-list {
+  margin-left: 0px;
+}
+.record-list li {
+  font-size: 17px;
+  padding: 2px 0;
+  align-items: center;
+  gap: 15px; 
+  color: #282013;
+  letter-spacing: 0.7px;
+  line-height: 1.6;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed #2c2212;   /* Use dashed for a typewriter look */
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+}
+.record-list li span:first-child {
+  margin-right: 60px; /* or more, as needed */
+  flex: 1;
+  word-break: break-word;
+}
+.record-list li:last-child {
+  border-bottom: none;
+}
+.rotate-90ccw {
+  transform: rotate(-90deg);
+  /* Optional: maintain image clarity */
+  image-rendering: auto;
+  /* Optional: adjust display for alignment */
+  display: inline-block;
+}
+#stats-table {
+  font-size: 1.17em;
+  line-height: 1.6;
+  max-width: 90%;
+}
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed #2c2212;
+  margin-bottom: 7px;
+  padding-bottom: 3px;
+}
+.stats-label {
+  font-weight: bold;
+  min-width: 180px;
+}
+.stats-value {
+  flex: 1;
+  text-align: right;
+  margin-left: 20px;
+}
+#approved-stamp {
+  position: absolute;
+  top: 50px;
+  right: 80px;
+  width: 180px;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 2;
+  transform: rotate(-11deg);
+}
+
+#confidential-stamp {
+  position: absolute;
+  bottom: 100px;
+  left: 800px;
+  width: 210px;
+  opacity: 0.50;
+  pointer-events: none;
+  z-index: 2;
+  transform: rotate(7deg);
+}
+#details-watermark {
+  position: absolute;
+  left: 30px;
+  top: 600px;
+  width: 350px;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.divider {
+  width: 12px;               /* match PNG width */
+  min-width: 12px;
+  background: url('/static/fold.png') repeat-y center center;
+  background-size: contain;
+  pointer-events: none;
+  opacity: 0.5;              /* adjust to taste */
+  z-index: 30;
+}
+
+@media (max-width: 1200px) {
+  #passport-container { width: 98vw; }
+}
+  </style>
+</head>
+<body>
+<!-- OUTSIDE: Pilot selector and Photo upload -->
+<div style="text-align:center;margin:18px 0 5px 0;">
+  <label for="pilot-select" style="font-size:1.15em;">Choose Pilot: </label>
+  <select id="pilot-select" class="styled-select" style="font-size:1.15em;padding:6px 10px;"></select>
+  <button onclick="changePhoto()" class="btn">Upload/Change Photo</button>
+</div>
+<div id="passport-container">
+  <button id="arrow-next"
+  title="Show statistics"
+  style="
+    position:absolute;
+    right:10px;
+    top:12px;
+    z-index:20;
+    background:#e4dabf;
+    border-radius:50%;
+    border:none;
+    width:40px;
+    height:40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor:pointer;
+    padding:0;
+  ">
+  <!-- Geometrically centered SVG arrow -->
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="12" fill="#e4dabf"/>
+    <path d="M8 12h8m0 0l-4-4m4 4l-4 4" stroke="#3e3112" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  </button>
+  <button id="arrow-prev"
+  title="Back to record"
+  style="
+    display:none;
+    position:absolute;
+    right:10px;
+    top:12px;
+    z-index:20;
+    background:#e4dabf;
+    border-radius:50%;
+    border:none;
+    width:40px;
+    height:40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor:pointer;
+    padding:0;
+  ">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="12" fill="#e4dabf"/>
+    <path d="M16 12H8m0 0l4-4m-4 4l4 4" stroke="#3e3112" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+  
+  <div class="left">
+    <div id="photo-frame">
+      <img id="pilot-photo" src="/static/sample_photo.jpg" alt="Pilot Photo">
+	  <img id="photo-edge-overlay" src="/static/photo_edges.png" alt="Photo Edges Overlay">
+      <img id="stamp-overlay" src="/static/stamp.png" alt="Stamp Overlay">
+    </div>
+    <div id="pilot-details">
+      <div class="detail-row"><span class="label">Name:</span><span class="typewriter" id="pilot-firstname"></span></div>
+      <div class="detail-row"><span class="label">Last Name:</span><span class="typewriter" id="pilot-lastname"></span></div>
+      <div class="detail-row"><span class="label">Date of Birth:</span><span class="typewriter" id="pilot-dob"></span></div>
+      <div class="detail-row"><span class="label">Place of Birth:</span><span class="typewriter" id="pilot-pob"></span></div>
+      <div class="detail-row"><span class="label">Pilot ID:</span><span class="typewriter" id="pilot-id"></span></div>
+      <div class="detail-row"><span class="label">Squadron:</span><span class="typewriter" id="pilot-sq"></span></div>
+	  <div class="detail-row"><span class="label">Rank:</span><span class="typewriter" id="pilot-rank"></span></div>
+	  <div class="detail-row" id="signature-row" style="flex-direction:column;align-items:flex-start;margin-top:20px;">
+	  <img src="/static/signature.png" alt="Signature" style="height:90px; width:auto; margin-bottom:5px; margin-left:4px;">
+	  <img id="stamp-overlay1" src="/static/stamp.png" alt="Stamp Overlay">
+      <span class="typewriter" style="font-size:1.04em; color:#1b140a; margin-left:6px; opacity:0.9;">Gen. Hunter A. Johnson</span>
+	</div>
+    </div>
+	
+  </div>
+<div class="divider"></div>
+
+  <!-- Service Record Page -->
+  <div class="right" id="service-record-page">
+    <div id="record-title">SERVICE RECORD</div>
+	<img id="approved-stamp" src="/static/stamp_extra.png" alt="Approved Stamp">
+    <div id="record-table">
+      <div id="promotions">
+        <div class="record-section-title">PROMOTIONS</div>
+        <div style="position:relative;">
+		<ul class="record-list typewriter" id="promotion-list" style="margin-bottom:0;"></ul>
+		<img id="promotion-watermark"
+		   src="/static/watermark_eagle.png"
+		   alt="Watermark"
+		   style="display:none; position:absolute; left:60%; top:110%; width:280px; opacity:0.4; pointer-events:none; transform:translateX(-50%) translateY(-15px);">
+		</div>
+
+	  </div>
+      <div id="awards">
+        <div class="record-section-title">AWARDS</div>
+        <ul class="record-list typewriter" id="award-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Page (Initially Hidden) -->
+  <div class="right" id="stats-page" style="display:none;">
+    <div id="record-title">CURRENT STATISTICS</div>
+	<img id="confidential-stamp" src="/static/stamp_extra_II.png" alt="Confidential Stamp">
+    <div id="stats-table" class="typewriter" style="margin-top:30px;">
+      <!-- Stats rows injected by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- Modal for cropping -->
+<div id="cropper-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(40,40,40,0.8)">
+  <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;padding:16px;border-radius:8px;box-shadow:0 0 40px #222;">
+    <img id="cropper-img" style="max-width:450px;max-height:450px;display:block;margin-bottom:10px">
+    <div style="text-align:right;">
+      <button onclick="cancelCrop()">Cancel</button>
+      <button onclick="doCrop()">Crop & Save</button>
+    </div>
+  </div>
+</div>
+<!-- Modal for Game Path Input -->
+<div id="gamePathModal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#f8f4e6; padding:30px 25px; border-radius:12px; box-shadow:0 2px 20px #2228; max-width:400px; margin:auto; text-align:center;">
+    <h2>IL-2 Game Folder Required</h2>
+    <div style="margin:18px 0;">
+      <input id="gamePathInput" type="text" style="width:94%;padding:7px;border-radius:5px;border:1px solid #bbb;" placeholder="Enter IL-2 installation folder"/>
+    </div>
+    <div id="gamePathError" style="color:#c00;min-height:22px;margin-bottom:12px;"></div>
+    <button id="gamePathSubmit" style="padding:7px 18px;border:none;border-radius:4px;background:#26397d;color:#fff;cursor:pointer;">Set Path</button>
+  </div>
+</div>
+
+<script>
+let cropper, pilotMap = {}, currentDesc = "";
+
+// ----------- Game Path Modal Logic -----------
+const gamePathModal = document.getElementById('gamePathModal');
+const gamePathInput = document.getElementById('gamePathInput');
+const gamePathError = document.getElementById('gamePathError');
+const gamePathSubmit = document.getElementById('gamePathSubmit');
+
+function showGamePathModal(defaultError = "") {
+    gamePathInput.value = localStorage.getItem('il2GamePath') || "";
+    gamePathError.textContent = defaultError;
+    gamePathModal.style.display = "flex";
+    gamePathInput.focus();
+    document.body.style.pointerEvents = "none";
+    gamePathModal.style.pointerEvents = "auto";
+}
+function hideGamePathModal() {
+    gamePathModal.style.display = "none";
+    document.body.style.pointerEvents = "";
+}
+
+gamePathSubmit.onclick = function() {
+    const path = gamePathInput.value.trim();
+    if (!path) {
+        gamePathError.textContent = "Please enter the game folder path.";
+        return;
+    }
+    setGamePath(path);
+};
+gamePathInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') gamePathSubmit.onclick();
+});
+
+function setGamePath(path) {
+    fetch('/api/set_game_path', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({game_path: path})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.ok) {
+            localStorage.setItem('il2GamePath', path);
+            hideGamePathModal();
+            fetchPilots();
+        } else {
+            localStorage.removeItem('il2GamePath'); // Clear stale path!
+            gamePathError.textContent = (data.error || "Unknown error. Please check your folder.");
+        }
+    })
+    .catch(() => {
+        gamePathError.textContent = "Could not connect to backend.";
+    });
+}
+
+// ----------- END Modal Logic -----------
+
+// ----------- Pilot Logic -----------
+function fetchPilots() {
+  fetch("/api/pilots")
+    .then(r => r.json())
+    .then(data => {
+      if (data.error && data.error.includes("IL-2 not found")) {
+        // Clear stored path and UI so user must re-enter
+        localStorage.removeItem('il2GamePath');
+        showGamePathModal("Please set your IL-2 installation folder.");
+        clearPassportUI();
+        return;
+      }
+      hideGamePathModal();
+      let sel = document.getElementById('pilot-select');
+      sel.innerHTML = "";
+      pilotMap = {};
+      data.forEach((p, i) => {
+        let label = `${p.display || "Unknown"} - ${p.country || ""} - ${p.squadron || ""}`;
+        sel.innerHTML += `<option value="${encodeURIComponent(p.desc)}">${label}</option>`;
+        pilotMap[encodeURIComponent(p.desc)] = p.desc;
+      });
+      if (data.length) {
+        sel.selectedIndex = 0;
+        loadPilot();
+      } else {
+        clearPassportUI();
+      }
+    })
+    .catch((e) => {
+      localStorage.removeItem('il2GamePath');
+      showGamePathModal("Unable to connect to server or no valid game path.");
+      clearPassportUI();
+    });
+}
+
+function clearPassportUI() {
+  // Set all fields to empty or placeholder image
+  document.getElementById('pilot-firstname').textContent = "";
+  document.getElementById('pilot-lastname').textContent = "";
+  document.getElementById('pilot-dob').textContent = "";
+  document.getElementById('pilot-pob').textContent = "";
+  document.getElementById('pilot-id').textContent = "";
+  document.getElementById('pilot-sq').textContent = "";
+  document.getElementById('pilot-rank').textContent = "";
+  document.getElementById('pilot-photo').src = "/static/sample_photo.jpg";
+  document.getElementById('promotion-list').innerHTML = '';
+  document.getElementById('award-list').innerHTML = '';
+}
+
+
+
+
+function loadPilot() {
+  let sel = document.getElementById('pilot-select');
+  let desc_encoded = sel.value;
+  let desc = pilotMap[desc_encoded];
+  currentDesc = desc;
+  fetch('/api/service_record?desc=' + encodeURIComponent(desc))
+    .then(r => r.json())
+    .then(updatePassport);
+
+  // Load custom pilot photo if it exists
+  fetch('/api/service_record?desc=' + encodeURIComponent(desc))
+  .then(r => r.json())
+  .then(data => {
+    updatePassport(data);
+    // Always use the backend-supplied photo_url!
+    document.getElementById('pilot-photo').src = data.pilot_info.photo_url + "?t=" + Date.now();
+    // Show/hide service/statistics as before...
+    serviceRecord.style.display = "";
+    statsPage.style.display = "none";
+    arrowNext.style.display = "";
+    arrowPrev.style.display = "none";
+  });
+  // Always show service record page when selecting a new pilot
+  serviceRecord.style.display = "";
+  statsPage.style.display = "none";
+  arrowNext.style.display = "";
+  arrowPrev.style.display = "none";
+}
+document.getElementById('pilot-select').addEventListener('change', loadPilot);
+
+function updatePassport(data) {
+  let info = data.pilot_info || {};
+  document.getElementById('pilot-firstname').textContent = info.first_name
+  document.getElementById('pilot-lastname').textContent = info.last_name
+  document.getElementById('pilot-dob').textContent = info.birth_date || '';
+  document.getElementById('pilot-pob').textContent = info.birth_country || '';
+  document.getElementById('pilot-id').textContent = info.pilot_id || '';
+  document.getElementById('pilot-sq').textContent = info.squadron || '';
+  document.getElementById('pilot-rank').textContent = info.rank_name || '';
+
+  let promolist = document.getElementById('promotion-list');
+  promolist.innerHTML = '';
+  (data.promotions || []).forEach(p => {
+    let imgTag = p.img ? `<img src="${p.img}" alt="Rank" class="rank-icon rotate-90ccw" style="margin-right:5px;">` : '';
+    promolist.innerHTML += `
+      <li>
+        ${imgTag}
+        <span>${p.desc}</span>
+        <span>${p.date}</span>
+      </li>
+    `;
+  });
+  const watermark = document.getElementById('promotion-watermark');
+  if ((data.promotions || []).length > 0) {
+     watermark.style.display = '';
+  } else {
+     watermark.style.display = 'none';
+  }
+
+  let awardlist = document.getElementById('award-list');
+  awardlist.innerHTML = '';
+  (data.awards || []).forEach(a => {
+    let imgPath = `/static/achievements/${a.tpar2}/preview.png`;
+    awardlist.innerHTML += `
+      <li>
+        <img src="${imgPath}" alt="Medal" class="award-icon" onerror="this.src='/static/award_placeholder.png'">
+        <span>${a.desc}</span>
+        <span>${a.date}</span>
+      </li>
+    `;
+  });
+}
+
+function changePhoto() {
+  let input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = e => {
+    let file = e.target.files[0];
+    if (!file) return;
+    let reader = new FileReader();
+    reader.onload = evt => {
+      let modal = document.getElementById('cropper-modal');
+      let img = document.getElementById('cropper-img');
+      img.src = evt.target.result;
+      modal.style.display = 'block';
+      if (cropper) cropper.destroy();
+      img.onload = function() {
+        cropper = new Cropper(img, {
+          aspectRatio: 180/220,
+          viewMode: 1,
+          autoCropArea: 1,
+          background: false,
+          movable: true,
+          zoomable: true,
+          rotatable: false,
+          scalable: false,
+          minCropBoxWidth: 90,
+          minCropBoxHeight: 110,
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+function cancelCrop() {
+  if (cropper) { cropper.destroy(); cropper = null; }
+  document.getElementById('cropper-modal').style.display = 'none';
+}
+
+function doCrop() {
+  if (!cropper) return;
+  let canvas = cropper.getCroppedCanvas({width:180, height:220});
+  let imgData = canvas.toDataURL("image/png");
+  if (currentDesc) {
+    hashString(currentDesc).then(hash => {
+      fetch('/api/save_photo', {
+        method: 'POST',
+        body: new URLSearchParams({desc: currentDesc, img_data: imgData}),
+      })
+      .then(r => r.json())
+      .then(data => {
+        if(data.path) {
+          document.getElementById('pilot-photo').src = data.path + "?t=" + Date.now();
+        }
+        cancelCrop();
+      });
+    });
+  } else {
+    document.getElementById('pilot-photo').src = imgData;
+    cancelCrop();
+  }
+}
+
+// Minimal SHA-256 for pilot image key
+function hashString(str) {
+  const encoder = new TextEncoder();
+  return window.crypto.subtle.digest("SHA-256", encoder.encode(str)).then(buf => {
+    return Array.from(new Uint8Array(buf)).map(x=>x.toString(16).padStart(2,"0")).join('').slice(0,20);
+  });
+}
+
+// Page switching logic
+const arrowNext = document.getElementById('arrow-next');
+const arrowPrev = document.getElementById('arrow-prev');
+const statsPage = document.getElementById('stats-page');
+const serviceRecord = document.querySelector('.right:not(#stats-page)');
+
+arrowNext.onclick = function() {
+  serviceRecord.style.display = "none";
+  statsPage.style.display = "";
+  arrowNext.style.display = "none";
+  arrowPrev.style.display = "";
+  loadStats(currentDesc);
+};
+arrowPrev.onclick = function() {
+  serviceRecord.style.display = "";
+  statsPage.style.display = "none";
+  arrowNext.style.display = "";
+  arrowPrev.style.display = "none";
+};
+
+function loadStats(desc) {
+  if (!desc) return;
+  fetch('/api/pilot_stats?desc=' + encodeURIComponent(desc))
+    .then(r => r.json())
+    .then(data => {
+      const tbl = document.getElementById('stats-table');
+      tbl.innerHTML = '';
+      for (let k in data) {
+        let label = k.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2');
+        let value = data[k];
+        if (k.toLowerCase().replace(/\s/g, '') === "flighttime") {
+          let hours = Math.floor(value / 3600);
+          let mins = value % 60;
+          value = hours + " h " + mins + " min";
+        }
+        if (k === "success_rate") value = value.toFixed(1) + "%";
+        tbl.innerHTML += `<div class="stats-row"><span class="stats-label">${label}:</span><span class="stats-value">${value}</span></div>`;
+      }
+    });
+}
+
+// window.addEventListener('beforeunload', function (e) {
+//     navigator.sendBeacon('/shutdown');
+// });
+
+// Try cached path on page load
+window.addEventListener('DOMContentLoaded', function() {
+    const lastPath = localStorage.getItem('il2GamePath');
+    if (lastPath) {
+        setGamePath(lastPath);
+    } else {
+        fetchPilots();
+    }
+});
+
+setInterval(() => {
+    fetch('/api/ping', {method: 'POST'});
+}, 5000); // Sends a ping every 5 seconds
+
+</script>
+
+</body>
+</html>

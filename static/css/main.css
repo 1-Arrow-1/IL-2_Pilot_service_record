@@ -395,26 +395,30 @@ button {
     scrollbar-gutter: stable;
     /* remove width:105%; */
 }
+.header-icon {
+    height: 45px;
+    display: block;
+    margin: 0 auto;
+}
 
 .logbook-table {
     width: 100%;
+    table-layout: auto; /* natural column sizing so nothing is artificially squeezed */
     border-collapse: collapse;
     font-family: 'Special Elite', monospace;
-    font-size: 0.95em;
+    font-size: 0.9em; /* slightly smaller for better fit */
     color: #1b140a;
     background: transparent;
-    table-layout: auto; /* allow natural sizing so header content isn’t squashed */
+    margin-right: 4px; /* give a little gap so last column isn’t flush under scrollbar */
 }
 
 /* Remove grid lines */
 .logbook-table th,
 .logbook-table td {
-  padding: 5px 8px;
-  border: none;
-  vertical-align: middle;
-  word-break: normal;
-  overflow-wrap: break-word; /* break only at natural break points if needed */
-  hyphens: auto; /* optionally soften long words with hyphenation when supported */
+    padding: 6px 10px;
+    border: none;
+    vertical-align: middle;
+    white-space: normal; /* allow wrapping except where overridden */
 }
 
 /* Alignment rules */
@@ -510,13 +514,15 @@ button {
 /* Inner scrollable pane so long content (like logbook) scrolls without
    stretching the outer background container */
 .page-inner {
+    position: relative; /* needed so absolutely positioned stamps are relative here */
     flex: 1;
     overflow-y: auto;
-    overflow-x: hidden; /* no horizontal scroll */
+    overflow-x: hidden; /* disallow horizontal scrolling */
     display: flex;
     flex-direction: column;
-    padding-right: 4px;
-    position: relative; /* for the fade overlay */
+    padding-right: 16px; /* keep table content clear of scrollbar thumb */
+    box-sizing: border-box;
+    min-width: 0; /* allow flex childr */
 }
 
 .page-inner::-webkit-scrollbar {

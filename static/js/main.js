@@ -310,70 +310,69 @@ function loadLogbook(desc) {
       }
 
       // Build HTML table with stacked headers and separate kill columns
-      let html = `
-        <table class="logbook-table">
-          <thead>
-		  <tr>
-			<th>Date</th>
-			<th>Aircraft</th>
-			<th>Mission</th>
-			<th>
-			  <div class="stacked-header">
-				<span class="main">Air</span>
-				<span class="sub">kills</span>
-			  </div>
-			</th>
-			<th>
-			  <div class="stacked-header">
-				<span class="main">Ground target</span>
-				<span class="sub">kills</span>
-			  </div>
-			</th>
-			<th>
-			  <div class="stacked-header">
-				<span class="main">Naval</span>
-				<span class="sub">kills</span>
-			  </div>
-			</th>
-			<th>
-			  <div class="stacked-header">
-				<span class="main">Human</span>
-				<span class="sub">kills</span>
-			  </div>
-			</th>
-			<th>
-			  <div class="stacked-header">
-				<span class="main">Assist</span>
-			  </div>
-			</th>
-			<th>
-			  <div class="stacked-header">
-				<span class="main">Flight</span>
-				<span class="sub">Time</span>
-			  </div>
-			</th>
-		  </tr>
-		</thead>
-
-        <tbody>
-      `;
-
-      data.forEach(sortie => {
-        const kills = sortie.kills || {};
-        html += `
+        let html = `
+      <table class="logbook-table">
+        <thead>
           <tr>
-            <td>${sortie.date || ''}</td>
-            <td>${sortie.aircraft || ''}</td>
-            <td>${humanizeMissionType(sortie.mission_type) || ''}</td>
-            <td>${formatSingleKill(kills["Air kills"])}</td>
-            <td>${formatSingleKill(kills["Ground target kills"])}</td>
-            <td>${formatSingleKill(kills["Naval kills"])}</td>
-            <td>${formatSingleKill(kills["Human kills"])}</td>
-            <td>${formatSingleKill(kills["Kill assist"])}</td>
-            <td>${sortie.flight_time || ''}</td>
+            <th>Date</th>
+            <th>Aircraft</th>
+            <th>Mission</th>
+            <th>
+              <div class="stacked-header">
+                <img src="static/images/killplanetargets.png" alt="Air kills" title="Air kills" class="header-icon">
+              </div>
+            </th>
+            <th>
+              <div class="stacked-header">
+                <img src="static/images/killvehicletargets.png" alt="Vehicle kills" title="Vehicle kills" class="header-icon">
+              </div>
+            </th>
+            <th>
+              <div class="stacked-header">
+                <img src="static/images/killboattargets.png" alt="Naval kills" title="Naval kills" class="header-icon">
+              </div>
+            </th>
+            <th>
+              <div class="stacked-header">
+                <img src="static/images/killartillerytargets.png" alt="Artillery kills" title="Artillery kills" class="header-icon">
+              </div>
+            </th>
+            <th>
+              <div class="stacked-header">
+                <img src="static/images/killrailroadtargets.png" alt="Railway kills" title="Railway kills" class="header-icon">
+              </div>
+            </th>
+            <th>
+              <div class="stacked-header">
+                <img src="static/images/killstructuretargets.png" alt="Structure kills" title="Structure kills" class="header-icon">
+              </div>
+            </th>
+            <th>
+              <div class="stacked-header">
+                <img src="static/images/flighttime.png" alt="Flight time" title="Flight time" class="header-icon">
+              </div>
+            </th>
           </tr>
-        `;
-      });
+        </thead>
+        <tbody>
+    `;
+
+     data.forEach(sortie => {
+       html += `
+        <tr>
+          <td>${sortie.date || ''}</td>
+          <td>${sortie.aircraft || ''}</td>
+          <td>${sortie.mission_type || ''}</td>
+          <td>${sortie.air_kills || ''}</td>
+          <td>${sortie.ground_kills || ''}</td>
+          <td>${sortie.naval_kills || ''}</td>
+          <td>${sortie.artillery_kills || ''}</td>
+          <td>${sortie.railway_kills || ''}</td>
+          <td>${sortie.structure_kills || ''}</td>
+          <td>${sortie.flight_time || ''}</td>
+        </tr>
+      `;
+     });
 
       html += "</tbody></table>";
       tableDiv.innerHTML = html;

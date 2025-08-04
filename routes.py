@@ -405,27 +405,31 @@ def api_pilot_sorties():
     cols_info = cur.fetchall()
     col_names = [c[1] for c in cols_info]
 
-    # Build static bucket definitions (only include columns that actually exist)
     def exists(cols):
         return [c for c in cols if c in col_names]
 
     air_kill_cols = exists(["killLightPlane", "killMediumPlane", "killHeavyPlane"])
     ground_kill_cols = exists([
         'killHeavyTank', 'killMediumTank', 'killVehicle', 'killLightTank', 'killArmouredVehicle',
-        'killTruck', 'killCar', 'killTrainLocomotive', 'killTrainVagon', 'killHowitzer',
-        'killFieldGun', 'killNavalGun', 'killRocketLauncher', 'killMachineGun', 'killSearchlight',
-        'killStaticPlane', 'killAirDefence', 'killHeavyFlak', 'killLightFlak', 'killAAAMachineGun'
+        'killTruck', 'killCar'
+    ])
+    artillery_kills_cols = exists([
+        'killHowitzer', 'killFieldGun', 'killNavalGun', 'killRocketLauncher',
+        'killHeavyFlak', 'killLightFlak', 'killAAAMachineGun'
     ])
     naval_kill_cols = exists(['killLightShip', 'killDestroyerShip', 'killSubmarine', 'killLargeCargoShip'])
-    human_kill_cols = exists(['killPilot', 'killPlaneGunner', 'killDriver', 'killVehicleGunner', 'killInfantry'])
-    assist_col = "killAssist" if "killAssist" in col_names else None
+    railway_kills_cols = exists(['killTrainLocomotive', 'killTrainVagon'])
+    structure_kills_cols = exists([
+        'killRuralYard', 'killTownBuilding', 'killFactoryBuilding',
+        'killRailwayStationFacility', 'killBridge', 'killAirfieldFacility'
+    ])
 
-    bucket_columns = air_kill_cols + ground_kill_cols + naval_kill_cols + human_kill_cols
-    if assist_col:
-        bucket_columns.append(assist_col)
+    bucket_columns = (
+        air_kill_cols + ground_kill_cols + naval_kill_cols +
+        artillery_kills_cols + railway_kills_cols + structure_kills_cols
+    )
 
-    # Build SELECT list: sortie fields + mission lookup (we'll fetch mission template separately)
-    select_fields = ["date", "model", "missionId"] + bucket_columns + ["planeStatus", "status", "flightTime"]
+    select_fields = ["date", "model", "missionId"] + bucket_columns + ["flightTime"]
 
     qmarks = ",".join(["?"] * len(pilot_ids))
     query = f"""
@@ -454,58 +458,37 @@ def api_pilot_sorties():
     def normalize_mtemplate(template: str) -> str:
         if not template:
             return ""
-        # Strip after '@' if present
         if '@' in template:
             template = template.split('@', 1)[0]
         else:
-            # Otherwise strip off anything starting with "_p0"
             idx = template.find('_p0')
             if idx != -1:
                 template = template[:idx]
-        # Replace dashes and underscores with spaces
         template = template.replace('-', ' ').replace('_', ' ').strip()
-        # Humanize / title case each word
         return " ".join(word.capitalize() for word in template.split())
-
-
 
     sorties = []
     for row in cur.fetchall():
-        # Unpack fields based on the SELECT order
         idx = 0
         date = row[idx]; idx += 1
         raw_model = row[idx]; idx += 1
         mission_id = row[idx]; idx += 1
 
-        # Bucket values
         bucket_vals = row[idx: idx + len(bucket_columns)]
         bucket_map = dict(zip(bucket_columns, bucket_vals))
         idx += len(bucket_columns)
 
-        plane_status = row[idx]; idx += 1
-        status = row[idx]; idx += 1
         flight_time = row[idx] if idx < len(row) else None
 
         # Aggregate kills
-        air_kills = sum(bucket_map.get(c, 0) for c in air_kill_cols)
-        ground_kills = sum(bucket_map.get(c, 0) for c in ground_kill_cols)
-        naval_kills = sum(bucket_map.get(c, 0) for c in naval_kill_cols)
-        human_kills = sum(bucket_map.get(c, 0) for c in human_kill_cols)
-        assist = bucket_map.get(assist_col, 0) if assist_col else 0
+        air_kills = sum(bucket_map.get(c, 0) or 0 for c in air_kill_cols)
+        ground_kills = sum(bucket_map.get(c, 0) or 0 for c in ground_kill_cols)
+        naval_kills = sum(bucket_map.get(c, 0) or 0 for c in naval_kill_cols)
+        artillery_kills = sum(bucket_map.get(c, 0) or 0 for c in artillery_kills_cols)
+        railway_kills = sum(bucket_map.get(c, 0) or 0 for c in railway_kills_cols)
+        structure_kills = sum(bucket_map.get(c, 0) or 0 for c in structure_kills_cols)
 
-        kills = {}
-        if air_kills:
-            kills["Air kills"] = air_kills
-        if ground_kills:
-            kills["Ground target kills"] = ground_kills
-        if naval_kills:
-            kills["Naval kills"] = naval_kills
-        if human_kills:
-            kills["Human kills"] = human_kills
-        if assist:
-            kills["Kill assist"] = assist
-
-        # Mission type normalization via mission table
+        # Mission type normalization
         mission_type = ""
         if mission_id is not None:
             cur.execute("SELECT mTemplate FROM mission WHERE id = ?", (mission_id,))
@@ -514,16 +497,20 @@ def api_pilot_sorties():
                 template = mrow["mTemplate"] if "mTemplate" in mrow.keys() else mrow[0]
                 mission_type = normalize_mtemplate(template)
 
-        # after computing date, raw_model, mission_type, kills, flight_time, etc.
+        # Build sortie dict with separate kill fields
         sortie = {
             "date": date,
             "aircraft": extract_plane_name(raw_model),
             "mission_type": mission_type,
-            "kills": kills,
-            # flight_time will be filled below
+            "air_kills": air_kills,
+            "ground_kills": ground_kills,
+            "naval_kills": naval_kills,
+            "artillery_kills": artillery_kills,
+            "railway_kills": railway_kills,
+            "structure_kills": structure_kills,
         }
 
-        # compute display string for flight_time
+        # Flight time formatting
         if flight_time is not None:
             hours = int(flight_time // 3600)
             minutes = int((flight_time % 3600) // 60)
@@ -538,8 +525,8 @@ def api_pilot_sorties():
 
         sorties.append(sortie)
 
-
     return jsonify(sorties)
+
 
 
 

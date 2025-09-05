@@ -166,7 +166,7 @@ function updatePassport(data) {
   let promolist = document.getElementById('promotion-list');
   promolist.innerHTML = '';
   (data.promotions || []).forEach(p => {
-    let imgTag = p.img ? `<img src="${p.img}" alt="Rank" class="rank-icon rotate-90ccw" style="margin-right:5px;">` : '';
+    let imgTag = p.img ? `<img src="${p.img}" alt="Rank" class="rank-icon" style="margin-right:5px;">` : '';
     promolist.innerHTML += `<li>${imgTag}<span>${p.desc}</span><span>${p.date}</span></li>`;
   });
   document.getElementById('promotion-watermark').style.display = ((data.promotions || []).length > 0) ? '' : 'none';

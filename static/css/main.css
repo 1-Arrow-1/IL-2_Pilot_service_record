@@ -300,7 +300,7 @@ button {
     vertical-align: middle;
     border-radius: 5px;
     background: transparent;
-    transform: rotate(-90deg);
+    /*transform: rotate(-90deg);*/
     transform-origin: center center;
 }
 
